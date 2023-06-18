@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_file_picker/form_builder_file_picker.dart';
@@ -25,8 +26,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class MyHomePageState extends State<MyHomePage> {
-  final _formKey = GlobalKey<FormBuilderState>();
-  bool _useCustomFileViewer = true;
+
 
   @override
   Widget build(BuildContext context) {
@@ -36,74 +36,39 @@ class MyHomePageState extends State<MyHomePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(10),
-        child: FormBuilder(
-          key: _formKey,
-          child: Column(
-            children: <Widget>[
-              FormBuilderFilePicker(
-                name: 'images',
-                decoration: const InputDecoration(labelText: 'Attachments'),
-                maxFiles: null,
-                allowMultiple: true,
-                previewImages: true,
-                onChanged: (val) => debugPrint(val.toString()),
-                typeSelectors: const [
-                  TypeSelector(
-
-                    type: FileType.any,
-                    selector: Row(
-                      children: <Widget>[
-                        Icon(Icons.file_upload),
-                        Text('Upload'),
-                      ],
-                    ),
-                  )
-                ],
-                onFileLoading: (val) {
-                  debugPrint(val.toString());
-                },
-                customFileViewerBuilder: _useCustomFileViewer
-                    ? (files, filesSetter) =>
-                        customFileViewerBuilder(files ?? [], (newValue) {})
-                    : null,
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    child: const Text('Submit'),
-                    onPressed: () {
-                      _formKey.currentState!.save();
-                      debugPrint("------>"+_formKey.currentState!.value.toString());
-                      final images = _formKey.currentState!.value['images'] as List<PlatformFile>;
-                      debugPrint("Image Path: ${images[0].path}");
-                                          },
-                  ),
-                  const Spacer(),
-                  ElevatedButton(
-                    child: Text(_useCustomFileViewer
-                        ? 'Use Default File Viewer'
-                        : 'Use Custom File Viewer'),
-                    onPressed: () {
-                      setState(
-                          () => _useCustomFileViewer = !_useCustomFileViewer);
-                    },
-                  ),
-                  const Spacer(),
-                  ElevatedButton(
-                    child: const Text('Reset'),
-                    onPressed: () {
-                      setState(
-                        () => _formKey.currentState!.reset(),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ],
+        child: FormBuilderFilePicker(
+  name: "attachments",
+  previewImages: false,
+  allowMultiple: true,
+  withData: true,
+  typeSelectors: [
+    TypeSelector(
+      type: FileType.any,
+      selector: Row(
+        children: <Widget>[
+          Icon(Icons.add_circle),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text("Add documents"),
           ),
+        ],
+      ),
+    ),
+    if (!kIsWeb)
+      TypeSelector(
+        type: FileType.image,
+        selector: Row(
+          children: <Widget>[
+            Icon(Icons.add_photo_alternate),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Text("Add images"),
+            ),
+          ],
         ),
+      ),
+    ],
+  )
       ),
     );
   }
