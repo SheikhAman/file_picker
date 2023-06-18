@@ -1,101 +1,73 @@
-import 'package:flutter/foundation.dart';
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:form_builder_file_picker/form_builder_file_picker.dart';
 
-void main() => runApp(const MyApp());
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const MyHomePage(),
-    );
-  }
+void main() {
+runApp(MyApp());
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+class MyApp extends StatefulWidget {
+
 
   @override
-  MyHomePageState createState() => MyHomePageState();
+  State<MyApp> createState() => _MyAppState();
 }
 
-class MyHomePageState extends State<MyHomePage> {
+class _MyAppState extends State<MyApp> {
+String? filePath;
 
+void _pickFile() async {
+	
+	// opens storage to pick files and the picked file or files
+	// are assigned into result and if no file is chosen result is null.
+	// you can also toggle "allowMultiple" true or false depending on your need
+	final result = await FilePicker.platform.pickFiles(allowMultiple: false);
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('FormBuilder FilePicker Example'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(10),
-        child: FormBuilderFilePicker(
-  name: "attachments",
-  previewImages: false,
-  allowMultiple: true,
-  withData: true,
-  typeSelectors: [
-    TypeSelector(
-      type: FileType.any,
-      selector: Row(
-        children: <Widget>[
-          Icon(Icons.add_circle),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: Text("Add documents"),
-          ),
-        ],
-      ),
-    ),
-    if (!kIsWeb)
-      TypeSelector(
-        type: FileType.image,
-        selector: Row(
-          children: <Widget>[
-            Icon(Icons.add_photo_alternate),
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Text("Add images"),
-            ),
-          ],
-        ),
-      ),
-    ],
-  )
-      ),
-    );
-  }
+	// if no file is picked
+	if (result == null) return;
 
-  Widget customFileViewerBuilder(
-    List<PlatformFile> files,
-    FormFieldSetter<List<PlatformFile>> setter,
-  ) {
-    return files.isEmpty
-        ? const Center(child: Text('No files'))
-        : ListView.separated(
-            shrinkWrap: true,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(files[index].name),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () {
-                    files.removeAt(index);
-                    setter.call([...files]);
-                  },
-                ),
-              );
-            },
-            separatorBuilder: (context, index) =>
-                const Divider(color: Colors.blueAccent),
-            itemCount: files.length,
-          );
-  }
+	// we will log the name, size and path of the
+	// first picked file (if multiple are selected)
+	print(result.files.first.name);
+	print(result.files.first.size);
+	print(result.files.first.path);
+  filePath  = result.files.first.path;
+  setState(() {
+    
+  });
+  
+}
+
+@override
+Widget build(BuildContext context) {
+	return MaterialApp(
+	debugShowCheckedModeBanner: false,
+	home: Scaffold(
+		backgroundColor: Colors.green[100],
+		body: Center(
+		child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+		  children: [
+		    MaterialButton(
+		    	onPressed: () {
+		    	_pickFile();
+		    	},
+		    	
+		    	color: Colors.green,
+          child: const Text(
+		    	'Pick and open file',
+		    	style: TextStyle(color: Colors.white),
+		    	),
+		    ),
+        if(filePath != null)
+        SizedBox(height: 200,width: 200,
+        child: Image.file(File(filePath!),),
+        )
+		  ],
+		),
+		),
+	),
+	);
+}
 }
